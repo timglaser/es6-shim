@@ -187,7 +187,7 @@
         var number = +value;
         if (Number.isNaN(number)) return 0;
         if (number === 0 || !Number.isFinite(number)) return number;
-        return Math.sign(number) * Math.floor(Math.abs(number));
+        return (number < 0 ? -1 : 1) * Math.floor(Math.abs(number));
       },
 
       ToLength: function(value) {
@@ -392,6 +392,10 @@
       return conversions;
     }());
 
+    // Work around Firefox bug where String.fromCodePoint had incorrect length
+    if (String.fromCodePoint && String.fromCodePoint.length !== 1) {
+      delete String.fromCodePoint;
+    }
     defineProperties(String, {
       fromCodePoint: function(_) { // length = 1
         var points = _slice.call(arguments, 0, arguments.length);
@@ -661,7 +665,7 @@
     });
     addIterator(ArrayIterator.prototype);
 
-    defineProperties(Array.prototype, {
+    var ArrayShims = {
       copyWithin: function(target, start) {
         var end = arguments[2]; // copyWithin.length must be 2
         var o = ES.ToObject(this);
@@ -747,7 +751,8 @@
       entries: function() {
         return new ArrayIterator(this, "entry");
       }
-    });
+    };
+    defineProperties(Array.prototype, ArrayShims);
     addIterator(Array.prototype, function() { return this.values(); });
     // Chrome defines keys/values/entries on Array, but doesn't give us
     // any way to identify its iterator.  So add our own shimmed field.
@@ -787,6 +792,17 @@
       }
 
     });
+
+    // Work around bugs in Array#find and Array#findIndex -- early
+    // implementations skipped holes in sparse arrays. (Note that the
+    // implementations of find/findIndex indirectly use shimmed
+    // methods of Number.)
+    if (![,1].find(function(item,idx) { return idx===0; })) {
+      Array.prototype.find = ArrayShims.find;
+    }
+    if ([,1].findIndex(function(item,idx) { return idx===0; }) !== 0) {
+      Array.prototype.findIndex = ArrayShims.findIndex;
+    }
 
     if (supportsDescriptors) {
       defineProperties(Object, {

@@ -9,7 +9,7 @@ var runArrayTests = function() {
         if (typeof Symbol === 'function' && Symbol.iterator) {
           iterator = Symbol.iterator;
         } else {
-          iterator = '_es6shim_iterator_';
+          return;
         }
         expect(a[iterator]()).to.eql(a.values());
       });
