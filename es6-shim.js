@@ -112,6 +112,11 @@
       var o = {};
       o[$iterator$] = impl;
       defineProperties(prototype, o);
+      /* jshint notypeof: true */
+      if (!prototype[$iterator$] && typeof($iterator$)==='symbol') {
+        // implementations are buggy when $iterator$ is a Symbol
+        prototype[$iterator$] = impl;
+      }
     };
 
     // taken directly from https://github.com/ljharb/is-arguments/blob/master/index.js
