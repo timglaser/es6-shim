@@ -1241,12 +1241,12 @@
       return ES.Call(originalForEach, this.length >= 0 ? this : [], arguments);
     }, true);
   }
-  if (!toLengthsCorrectly(Array.prototype.map)) {
+  //if (!toLengthsCorrectly(Array.prototype.map)) {
     var originalMap = Array.prototype.map;
     overrideNative(Array.prototype, 'map', function map(callbackFn) {
       return ES.Call(originalMap, this.length >= 0 ? this : [], arguments);
     }, true);
-  }
+  //}
   if (!toLengthsCorrectly(Array.prototype.filter)) {
     var originalFilter = Array.prototype.filter;
     overrideNative(Array.prototype, 'filter', function filter(callbackFn) {
